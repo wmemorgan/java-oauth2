@@ -1,9 +1,12 @@
 package com.lambdaschool.usermodel.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -128,7 +131,7 @@ public class User
     {
         setUsername(username);
         setPassword(password);
-        setPrimaryEmail(primaryemail);
+        setPrimaryemail(primaryemail);
         for (UserRoles ur : userRoles)
         {
             ur.setUser(this);
@@ -218,14 +221,18 @@ public class User
         return password;
     }
 
+    public void setPasswordNoEncrypt(String password) {
+        this.password = password;
+    }
+
     /**
      * Setter for password
      *
      * @param password the new password (String) for the user
      */
-    public void setPassword(String password)
-    {
-        this.password = password;
+    public void setPassword(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        this.password = passwordEncoder.encode(password);
     }
 
     /**
@@ -277,6 +284,22 @@ public class User
     {
         roles.add(new UserRoles(this,
                 role));
+    }
+
+    @JsonIgnore
+    public List<SimpleGrantedAuthority> getAuthority()
+    {
+        List<SimpleGrantedAuthority> rtnList = new ArrayList<>();
+
+        for (UserRoles r : this.roles)
+        {
+            String myRole = "ROLE_" + r.getRole()
+                    .getName()
+                    .toUpperCase();
+            rtnList.add(new SimpleGrantedAuthority(myRole));
+        }
+
+        return rtnList;
     }
 
 }

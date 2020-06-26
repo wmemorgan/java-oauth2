@@ -1,6 +1,10 @@
 package com.lambdaschool.usermodel.handlers;
 
+import com.lambdaschool.usermodel.exceptions.ResourceNotFoundException;
 import com.lambdaschool.usermodel.models.ValidationError;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;
@@ -15,6 +19,18 @@ import java.util.List;
 @Component
 public class HelperFunctions
 {
+    public boolean isAuthorizedtoMakeChange(String username) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (username.equalsIgnoreCase(authentication.getName()) ||
+                (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))))
+        {
+            return true;
+        }
+
+        throw new ResourceNotFoundException(authentication.getName() + " not authorized to make this change");
+    }
+
     /**
      * Searches to see if the exception has any constraint violations to report
      *

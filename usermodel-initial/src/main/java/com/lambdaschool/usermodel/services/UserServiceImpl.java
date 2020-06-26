@@ -2,6 +2,7 @@ package com.lambdaschool.usermodel.services;
 
 import com.lambdaschool.usermodel.exceptions.ResourceFoundException;
 import com.lambdaschool.usermodel.exceptions.ResourceNotFoundException;
+import com.lambdaschool.usermodel.handlers.HelperFunctions;
 import com.lambdaschool.usermodel.models.Role;
 import com.lambdaschool.usermodel.models.User;
 import com.lambdaschool.usermodel.models.UserRoles;
@@ -40,6 +41,9 @@ public class UserServiceImpl
      */
     @Autowired
     private UserAuditing userAuditing;
+
+    @Autowired
+    private HelperFunctions helper;
 
     public User findUserById(long id)
             throws
@@ -113,7 +117,7 @@ public class UserServiceImpl
 
         newUser.setUsername(user.getUsername()
                 .toLowerCase());
-        newUser.setPassword(user.getPassword());
+        newUser.setPasswordNoEncrypt(user.getPassword());
         newUser.setPrimaryemail(user.getPrimaryemail()
                 .toLowerCase());
 
@@ -159,58 +163,63 @@ public class UserServiceImpl
     {
         User currentUser = findUserById(id);
 
-        if (user.getUsername() != null)
-        {
-            currentUser.setUsername(user.getUsername()
-                    .toLowerCase());
-        }
-
-        if (user.getPassword() != null)
-        {
-            currentUser.setPassword(user.getPassword());
-        }
-
-        if (user.getPrimaryemail() != null)
-        {
-            currentUser.setPrimaryemail(user.getPrimaryemail()
-                    .toLowerCase());
-        }
-
-        if (user.getRoles()
-                .size() > 0)
-        {
-            // delete the roles for the old user we are replacing
-            for (UserRoles ur : currentUser.getRoles())
+        if (helper.isAuthorizedtoMakeChange(currentUser.getUsername())) {
+            if (user.getUsername() != null)
             {
-                deleteUserRole(ur.getUser()
-                                .getUserid(),
-                        ur.getRole()
-                                .getRoleid());
+                currentUser.setUsername(user.getUsername()
+                        .toLowerCase());
             }
 
-            // add the new roles for the user we are replacing
-            for (UserRoles ur : user.getRoles())
+            if (user.getPassword() != null)
             {
-                addUserRole(currentUser.getUserid(),
-                        ur.getRole()
-                                .getRoleid());
+                currentUser.setPasswordNoEncrypt(user.getPassword());
             }
-        }
 
-        if (user.getUseremails()
-                .size() > 0)
-        {
-            currentUser.getUseremails()
-                    .clear();
-            for (Useremail ue : user.getUseremails())
+            if (user.getPrimaryemail() != null)
+            {
+                currentUser.setPrimaryemail(user.getPrimaryemail()
+                        .toLowerCase());
+            }
+
+            if (user.getRoles()
+                    .size() > 0)
+            {
+                // delete the roles for the old user we are replacing
+                for (UserRoles ur : currentUser.getRoles())
+                {
+                    deleteUserRole(ur.getUser()
+                                    .getUserid(),
+                            ur.getRole()
+                                    .getRoleid());
+                }
+
+                // add the new roles for the user we are replacing
+                for (UserRoles ur : user.getRoles())
+                {
+                    addUserRole(currentUser.getUserid(),
+                            ur.getRole()
+                                    .getRoleid());
+                }
+            }
+
+            if (user.getUseremails()
+                    .size() > 0)
             {
                 currentUser.getUseremails()
-                        .add(new Useremail(currentUser,
-                                ue.getUseremail()));
+                        .clear();
+                for (Useremail ue : user.getUseremails())
+                {
+                    currentUser.getUseremails()
+                            .add(new Useremail(currentUser,
+                                    ue.getUseremail()));
+                }
             }
-        }
 
         return userrepos.save(currentUser);
+
+        } else {
+            throw new ResourceNotFoundException("Not Authorized");
+        }
     }
 
     @Override
