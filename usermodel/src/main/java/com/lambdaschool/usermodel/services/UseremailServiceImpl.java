@@ -1,7 +1,5 @@
 package com.lambdaschool.usermodel.services;
 
-import com.lambdaschool.usermodel.exceptions.ResourceNotFoundException;
-import com.lambdaschool.usermodel.handlers.HelperFunctions;
 import com.lambdaschool.usermodel.models.User;
 import com.lambdaschool.usermodel.models.Useremail;
 import com.lambdaschool.usermodel.repository.UseremailRepository;
@@ -9,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lambdaschool.usermodel.exceptions.ResourceNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,9 +30,6 @@ public class UseremailServiceImpl
      */
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private HelperFunctions helper;
 
     @Override
     public List<Useremail> findAll()
@@ -63,13 +59,7 @@ public class UseremailServiceImpl
         if (useremailrepos.findById(id)
                 .isPresent())
         {
-            if (helper.isAuthorizedToMakeChange(useremailrepos.findById(id)
-                    .get()
-                    .getUser()
-                    .getUsername()))
-            {
-                useremailrepos.deleteById(id);
-            }
+            useremailrepos.deleteById(id);
         } else
         {
             throw new ResourceNotFoundException("Useremail with id " + id + " Not Found!");
@@ -85,20 +75,9 @@ public class UseremailServiceImpl
         if (useremailrepos.findById(useremailid)
                 .isPresent())
         {
-            if (helper.isAuthorizedToMakeChange(useremailrepos.findById(useremailid)
-                    .get()
-                    .getUser()
-                    .getUsername()))
-            {
-                Useremail useremail = findUseremailById(useremailid);
-                useremail.setUseremail(emailaddress.toLowerCase());
-                return useremailrepos.save(useremail);
-            } else
-            {
-                // note we should never get to this line but is needed for the compiler
-                // to recognize that this exception can be thrown
-                throw new ResourceNotFoundException("This user is not authorized to make change");
-            }
+            Useremail useremail = findUseremailById(useremailid);
+            useremail.setUseremail(emailaddress.toLowerCase());
+            return useremailrepos.save(useremail);
         } else
         {
             throw new ResourceNotFoundException("Useremail with id " + useremailid + " Not Found!");
@@ -113,22 +92,8 @@ public class UseremailServiceImpl
     {
         User currentUser = userService.findUserById(userid);
 
-        if (helper.isAuthorizedToMakeChange(currentUser.getUsername()))
-        {
-            Useremail newUserEmail = new Useremail(currentUser,
-                    emailaddress);
-            return useremailrepos.save(newUserEmail);
-        } else
-        {
-            // note we should never get to this line but is needed for the compiler
-            // to recognize that this exception can be thrown
-            throw new ResourceNotFoundException("This user is not authorized to make change");
-        }
-    }
-
-    @Override
-    public List<Useremail> findByUserName(String username)
-    {
-        return useremailrepos.findAllByUser_Username(username.toLowerCase());
+        Useremail newUserEmail = new Useremail(currentUser,
+                                               emailaddress);
+        return useremailrepos.save(newUserEmail);
     }
 }

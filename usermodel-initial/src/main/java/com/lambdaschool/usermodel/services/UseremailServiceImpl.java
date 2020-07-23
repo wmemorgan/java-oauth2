@@ -1,6 +1,5 @@
 package com.lambdaschool.usermodel.services;
 
-import com.lambdaschool.usermodel.exceptions.ResourceNotFoundException;
 import com.lambdaschool.usermodel.models.User;
 import com.lambdaschool.usermodel.models.Useremail;
 import com.lambdaschool.usermodel.repository.UseremailRepository;
@@ -8,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lambdaschool.usermodel.exceptions.ResourceNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,13 +93,7 @@ public class UseremailServiceImpl
         User currentUser = userService.findUserById(userid);
 
         Useremail newUserEmail = new Useremail(currentUser,
-                emailaddress);
+                                               emailaddress);
         return useremailrepos.save(newUserEmail);
-    }
-
-    @Override
-    public List<Useremail> findByUserName(String username)
-    {
-        return useremailrepos.findAllByUser_Username(username.toLowerCase());
     }
 }

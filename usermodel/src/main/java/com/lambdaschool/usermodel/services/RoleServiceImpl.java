@@ -1,7 +1,5 @@
 package com.lambdaschool.usermodel.services;
 
-import com.lambdaschool.usermodel.exceptions.ResourceFoundException;
-import com.lambdaschool.usermodel.exceptions.ResourceNotFoundException;
 import com.lambdaschool.usermodel.models.Role;
 import com.lambdaschool.usermodel.repository.RoleRepository;
 import com.lambdaschool.usermodel.repository.UserRepository;
@@ -9,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lambdaschool.usermodel.exceptions.ResourceFoundException;
+import com.lambdaschool.usermodel.exceptions.ResourceNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +24,13 @@ public class RoleServiceImpl
      * Connects this service to the Role Model
      */
     @Autowired
-    private RoleRepository rolerepos;
+    RoleRepository rolerepos;
 
     /**
-     * Connects this service to the User Model
+     * Connect this service to the User Model
      */
     @Autowired
-    private UserRepository userrepos;
+    UserRepository userrepos;
 
     /**
      * Connects this service to the auditing service in order to get current user name
@@ -89,18 +89,15 @@ public class RoleServiceImpl
 
     @Transactional
     @Override
-    public void delete(long id)
+    public void deleteAll()
     {
-        rolerepos.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role id " + id + " not found!"));
-        rolerepos.deleteById(id);
+        rolerepos.deleteAll();
     }
 
     @Transactional
     @Override
-    public Role update(
-            long id,
-            Role role)
+    public Role update(long id,
+                       Role role)
     {
         if (role.getName() == null)
         {
@@ -116,9 +113,9 @@ public class RoleServiceImpl
         Role newRole = findRoleById(id); // see if id exists
 
         rolerepos.updateRoleName(userAuditing.getCurrentAuditor()
-                        .get(),
-                id,
-                role.getName());
+                                         .get(),
+                                 id,
+                                 role.getName());
         return findRoleById(id);
     }
 }

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.5.RELEASE</version>
+        <version>2.2.8.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.lambdaschool</groupId>
@@ -15,7 +15,7 @@
     <description>Demo project for Spring Boot</description>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>14</java.version>
     </properties>
 
     <dependencies>
@@ -29,7 +29,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-<!--        DevTools can cause some console messages to appear twice!-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -77,7 +76,6 @@
             <version>2.9.2</version>
         </dependency>
         <!-- Swagger Dependencies End -->
-
     </dependencies>
 
     <build>
